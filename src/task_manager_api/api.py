@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from models import TaskCreate, TaskUpdate
+from .models import TaskCreate, TaskUpdate
 
 app = FastAPI()
 
