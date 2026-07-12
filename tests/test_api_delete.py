@@ -1,22 +1,4 @@
-import pytest
-from fastapi.testclient import TestClient
-from task_manager_api.api import app
-import task_manager_api.api as api
-
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def reset_state():
-    api.task_list.clear()
-    api.id_count = 1
-
-    yield
-    api.task_list.clear()
-    api.id_count = 1
-
-
-def test_delete():
+def test_delete(client):
     payload = [
         {
             "title": "List of products",

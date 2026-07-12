@@ -1,29 +1,11 @@
-import pytest
-from fastapi.testclient import TestClient
-from task_manager_api.api import app
-import task_manager_api.api as api
-
-client = TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def reset_state():
-    api.task_list.clear()
-    api.id_count = 1
-
-    yield
-    api.task_list.clear()
-    api.id_count = 1
-
-
-def test_health():
+def test_health(client):
     response = client.get("/health")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
 
-def test_show_all_tasks():
+def test_show_all_tasks(client):
     payload = [
         {
             "title": "List of products",
