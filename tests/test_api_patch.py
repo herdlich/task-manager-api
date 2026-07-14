@@ -1,3 +1,6 @@
+from task_manager_api.database import get_all_tasks
+
+
 def test_patch(client, payload):
     for task in payload:
         client.post(
@@ -84,3 +87,27 @@ def test_patch_null_title(client, payload):
 
     assert response_get.status_code == 200
     assert response_get.json() == expected_response
+
+
+def test_empty_changes_patch(tmp_path, client, payload):
+    db_file = tmp_path / "data" / "tasks.db"
+
+    for task in payload:
+        client.post(
+            "/tasks",
+            json=task
+        )
+
+    before_tasks = get_all_tasks(db_file)
+
+    response = client.patch(
+        "/tasks/1",
+        json={}
+    )
+
+    assert response.status_code == 200
+
+    after_tasks = get_all_tasks(db_file)
+
+    assert before_tasks == after_tasks
+    assert response.json() == before_tasks[0]

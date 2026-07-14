@@ -1,22 +1,20 @@
 import pytest
+from task_manager_api.database import db_init
 from fastapi.testclient import TestClient
 from task_manager_api.api import app
-import task_manager_api.api as api
 
 
 @pytest.fixture()
-def client():
+def client(monkeypatch, tmp_path):
+    path_db = tmp_path / "data" / "tasks.db"
+    monkeypatch.setattr(
+        "task_manager_api.api.DB_PATH",
+        path_db
+    )
+
+    db_init(path_db)
+
     return TestClient(app)
-
-
-@pytest.fixture(autouse=True)
-def reset_state():
-    api.task_list.clear()
-    api.id_count = 1
-
-    yield
-    api.task_list.clear()
-    api.id_count = 1
 
 
 @pytest.fixture()
