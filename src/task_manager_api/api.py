@@ -1,9 +1,23 @@
+from pathlib import Path
+
+from task_manager_api.database import (
+    db_init,
+    save_db,
+    get_all_tasks,
+    delete_task_from_db,
+    get_task_by_id,
+    patch_task_by_id
+)
+
 from fastapi import FastAPI, HTTPException
 from .models import TaskCreate, TaskUpdate
 
 app = FastAPI()
 
-task_list = []
+Path("data").mkdir(exist_ok=True)
+DB_PATH = Path("data") / "tasks.db"
+
+db_init(DB_PATH)
 
 id_count = 1
 
@@ -17,31 +31,18 @@ def health():
 
 @app.post("/tasks")
 def create_task(data: TaskCreate):
-    global id_count
-
-    new_task = {
-        "id": id_count,
-        "title": data.title,
-        "description": data.description,
-        "due_date": data.due_date,
-    }
-
-    task_list.append(new_task)
-
-    id_count += 1
-
-    return new_task
+    return save_db(DB_PATH, data)
 
 
 @app.get("/tasks")
 def show_tasks():
+    task_list = get_all_tasks(DB_PATH)
     return task_list
 
 
 @app.get("/tasks/{task_id}")
 def show_task_by_id(task_id: int):
-    task = next((task for task in task_list if task["id"] == task_id), None)
-
+    task = get_task_by_id(DB_PATH, task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="No task found")
 
@@ -50,25 +51,27 @@ def show_task_by_id(task_id: int):
 
 @app.delete("/tasks/{task_id}")
 def delete_task(task_id: int):
-    task = next((task for task in task_list if task["id"] == task_id), None)
+    task = get_task_by_id(DB_PATH, task_id)
 
     if task is None:
         raise HTTPException(status_code=404, detail="No task found")
 
-    task_list.remove(task)
+    delete_task_from_db(DB_PATH, task_id)
 
     return task
 
 
 @app.patch("/tasks/{task_id}")
 def patch_task(data: TaskUpdate, task_id: int):
-    task = next((task for task in task_list if task["id"] == task_id), None)
+    task = get_task_by_id(DB_PATH, task_id)
 
     if task is None:
         raise HTTPException(status_code=404, detail="No task found")
 
     changes = data.model_dump(exclude_unset=True)
 
-    task.update(changes)
+    patch_task_by_id(DB_PATH, task_id, changes)
 
-    return task
+    new_task = get_task_by_id(DB_PATH, task_id)
+
+    return new_task
