@@ -17,7 +17,7 @@ def test_post(client):
         "due_date": "2026-07-12",
     }
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == expected_response
 
 

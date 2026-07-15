@@ -35,3 +35,9 @@ class TaskUpdate(BaseModel):
             raise ValueError("title cannot be null")
         return value
 
+
+class TaskResponse(BaseModel):
+    id: int
+    title: Title
+    description: str | None
+    due_date: date | None

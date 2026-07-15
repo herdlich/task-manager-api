@@ -9,8 +9,8 @@ from task_manager_api.database import (
     patch_task_by_id
 )
 
-from fastapi import FastAPI, HTTPException
-from .models import TaskCreate, TaskUpdate
+from fastapi import FastAPI, HTTPException, status
+from .models import TaskCreate, TaskUpdate, TaskResponse
 
 app = FastAPI()
 
@@ -29,18 +29,18 @@ def health():
     }
 
 
-@app.post("/tasks")
+@app.post("/tasks", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
 def create_task(data: TaskCreate):
     return save_db(DB_PATH, data)
 
 
-@app.get("/tasks")
+@app.get("/tasks", response_model=list[TaskResponse])
 def show_tasks():
     task_list = get_all_tasks(DB_PATH)
     return task_list
 
 
-@app.get("/tasks/{task_id}")
+@app.get("/tasks/{task_id}", response_model=TaskResponse)
 def show_task_by_id(task_id: int):
     task = get_task_by_id(DB_PATH, task_id)
     if task is None:
@@ -49,7 +49,7 @@ def show_task_by_id(task_id: int):
     return task
 
 
-@app.delete("/tasks/{task_id}")
+@app.delete("/tasks/{task_id}", response_model=TaskResponse)
 def delete_task(task_id: int):
     task = get_task_by_id(DB_PATH, task_id)
 
@@ -61,7 +61,7 @@ def delete_task(task_id: int):
     return task
 
 
-@app.patch("/tasks/{task_id}")
+@app.patch("/tasks/{task_id}", response_model=TaskResponse)
 def patch_task(data: TaskUpdate, task_id: int):
     task = get_task_by_id(DB_PATH, task_id)
 
