@@ -19,8 +19,6 @@ DB_PATH = Path("data") / "tasks.db"
 
 db_init(DB_PATH)
 
-id_count = 1
-
 
 @app.get("/health")
 def health():

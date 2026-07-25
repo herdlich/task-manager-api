@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 from contextlib import closing
-from task_manager_api.models import TaskCreate, TaskUpdate
+from task_manager_api.models import TaskCreate
 
 
 def db_init(db_file):
